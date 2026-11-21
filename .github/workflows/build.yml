@@ -1,0 +1,37 @@
+
+name: Build Scorpy Safio
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.10.2
+
+      - name: Extract ZIP
+        run: |
+          ZIP=$(find . -maxdepth 1 -name 'scorpysafio-mod-source*.zip' | head -n 1)
+          test -n "$ZIP"
+          unzip -q "$ZIP" -d source
+
+      - name: Build mod
+        working-directory: source/scorpysafio
+        run: gradle build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SCORPY-SAFIO
+          path: source/scorpysafio/build/libs/*.jar
